@@ -14,5 +14,8 @@ REPLACE_STR="$(echo "$CACERT_DIR" | tr '/-' '_')"
 
 if [ ! -f "$CACERT_HEADER" ]; then
   wget "https://curl.se/ca/cacert.pem" -O "$CACERT_FILE"
+  # Extra roots: Apple Root CA and Apple Root CA - G3 (gsa.apple.com and other
+  # GrandSlam hosts chain to Apple's own root, which Mozilla's bundle lacks).
+  for der in certs/*.der; do openssl x509 -inform der -in "$der" >> "$CACERT_FILE"; done
   python3 tools/gen_cert.py "$CACERT_FILE" > "$CACERT_HEADER"
 fi
